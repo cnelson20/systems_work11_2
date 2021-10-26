@@ -41,6 +41,7 @@ int main() {
 		printf("Cannot read from file!\n");
 		return 0;
 	}
+	fclose(fp);
 	
 	printf("Values read from file:\n");
 	print_ints(buffer,10);
