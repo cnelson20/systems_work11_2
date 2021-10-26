@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
 void generate_random(void *ptr, size_t bytes);
 void print_ints(unsigned int *array, size_t length);
@@ -18,13 +20,27 @@ int main() {
 	FILE *fp;
 	printf("\nWriting to file\n\n");
 	fp = fopen("hold_random.bin","w");
-	fwrite(randoms,sizeof(unsigned int),10,fp);
+	if (errno != 0) {
+		printf("Cannot create/open file.\n");
+		return 0;
+	}
+	if (-1 == fwrite(randoms,sizeof(unsigned int),10,fp)) {
+		printf("Cannot write to file!\n");
+		return 0;
+	}
 	fclose(fp);
 	
 	printf("Reading from file\n\n");
 	fp = fopen("hold_random.bin","r");
+	if (errno != 0) {
+		printf("Cannot open file.\n");
+		return 0;
+	}
 	unsigned int *buffer = malloc(sizeof(unsigned int) * 10);
-	fread(buffer,sizeof(unsigned int),10,fp);
+	if (-1 == fread(buffer,sizeof(unsigned int),10,fp)) {
+		printf("Cannot read from file!\n");
+		return 0;
+	}
 	
 	printf("Values read from file:\n");
 	print_ints(buffer,10);
