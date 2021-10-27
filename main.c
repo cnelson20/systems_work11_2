@@ -1,12 +1,13 @@
 #include <stdio.h>
-#include <time.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <string.h>
 
 void generate_random(void *ptr, size_t bytes);
 void print_ints(unsigned int *array, size_t length);
 int main();
+
 
 int main() {
 	unsigned int randoms[10];
@@ -17,31 +18,31 @@ int main() {
 	print_ints(randoms,10);
 	
 	
-	FILE *fp;
+	int fp;
 	printf("\nWriting to file\n\n");
-	fp = fopen("hold_random.bin","w");
+	fp = open("hold_random.bin",O_WRONLY,0700);
 	if (errno != 0) {
 		printf("Cannot create/open file.\n");
 		return 0;
 	}
-	if (-1 == fwrite(randoms,sizeof(unsigned int),10,fp)) {
+	if (-1 == write(fp,randoms,sizeof(unsigned int)*10)) {
 		printf("Cannot write to file!\n");
 		return 0;
 	}
-	fclose(fp);
+        //close(fp);
 	
 	printf("Reading from file\n\n");
-	fp = fopen("hold_random.bin","r");
+	fp = open("hold_random.bin",O_RDONLY);
 	if (errno != 0) {
 		printf("Cannot open file.\n");
 		return 0;
 	}
 	unsigned int *buffer = malloc(sizeof(unsigned int) * 10);
-	if (-1 == fread(buffer,sizeof(unsigned int),10,fp)) {
+	if (-1 == read(fp,buffer,sizeof(unsigned int)*10)) {
 		printf("Cannot read from file!\n");
 		return 0;
 	}
-	fclose(fp);
+	//close(fp);
 	
 	printf("Values read from file:\n");
 	print_ints(buffer,10);
@@ -60,8 +61,8 @@ void print_ints(unsigned int *array, size_t length) {
 	printf("}\n");
 }
 void generate_random(void *ptr, size_t bytes) {
-	FILE *fp;
-	fp = fopen("/dev/urandom","r");
-	fread(ptr,1,bytes,fp);
-	fclose(fp);
+	int fp;
+	fp = open("/dev/urandom",O_RDONLY);
+	read(fp,ptr,bytes);
+	//close(fp);
 }
